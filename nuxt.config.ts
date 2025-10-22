@@ -56,6 +56,18 @@ export default defineNuxtConfig({
 
   unocss: {
     nuxtLayers: true,
+    theme: {
+      colors: {
+        obsidian: '#2a2a2a',
+      },
+      breakpoints: {
+        xs: '376px',
+        sm: '640px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1280px',
+      },
+    },
   },
 
   postcss: {
