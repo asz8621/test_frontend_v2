@@ -8,6 +8,7 @@
       :value="modelValue"
       class="w-full border-1 border-solid border-gray-500 rounded-md outline-none text-base text-white bg-transparent px-4 py-2 focus:border-blue-500 transition-all duration-300 ease-in-out"
       :type="type"
+      :disabled="disabled"
       @input="onInput"
     />
   </div>
@@ -22,6 +23,7 @@ interface Props {
   modelValue?: string | number | null
   type?: InputType
   width?: string
+  disabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
