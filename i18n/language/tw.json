@@ -6,6 +6,7 @@
   "age": "年齡",
   "create": "新增",
   "update": "修改",
+  "clear": "清除",
   "delete": "刪除",
   "input_name_age": "請輸入完整的名字和年齡。",
   "cancel": "取消",
@@ -17,5 +18,6 @@
   "confirm_add": "確認要新增此筆資料嗎？",
   "confirm_edit": "確認要修改此筆資料嗎？",
   "confirm_delete": "確認要刪除此筆資料嗎？",
-  "confirm_operation": "確認要進行此操作嗎？"
+  "confirm_operation": "確認要進行此操作嗎？",
+  "no_data": "沒有可用的資料。"
 }
