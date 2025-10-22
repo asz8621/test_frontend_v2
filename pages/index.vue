@@ -20,22 +20,23 @@
           <Btn
             :text="$t('clear')"
             color="secondary"
-            size="lg"
-            @click="resetUserData"
             class="mr-auto"
+            size="lg"
+            :disabled="isLoading"
+            @click="resetUserData"
           />
           <Btn
             :text="$t('update')"
             color="success"
             size="lg"
-            :disabled="dialogMode === 'add'"
+            :disabled="dialogMode === 'add' || isLoading"
             @click="checkUserData"
           />
           <Btn
             :text="$t('create')"
             color="warn"
             size="lg"
-            :disabled="dialogMode === 'edit'"
+            :disabled="dialogMode === 'edit' || isLoading"
             @click="checkUserData"
           />
         </div>
@@ -71,13 +72,14 @@
                         :text="$t('update')"
                         color="success"
                         size="md"
+                        :disabled="isLoading"
                         @click="editUserItem(index)"
                       />
                       <Btn
                         :text="$t('delete')"
                         color="error"
                         size="md"
-                        :disabled="dialogMode === 'edit'"
+                        :disabled="dialogMode === 'edit' || isLoading"
                         @click="deleteUserItem(item)"
                       />
                     </div>
@@ -114,7 +116,7 @@ const { dialogMode, dialogSend } = storeToRefs(dialogStore)
 
 const userStore = useUserStore()
 const { getUsers, createUser, editUser, deleteUser } = userStore
-const { userData } = storeToRefs(userStore)
+const { userData, isLoading } = storeToRefs(userStore)
 
 await useAsyncData('users', async () => {
   await getUsers()
