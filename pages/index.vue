@@ -6,8 +6,8 @@
       <div class="border-1 border-solid border-gray-500 rounded-3xl p-4 sm:px-18 sm:py-10 mb-8">
         <h2 class="text-center mt-0 mb-2">操作</h2>
         <div class="mb-10">
-          <TextField label="名字" v-model="userData.name" />
-          <TextField label="年齡" type="number" v-model="userData.age" />
+          <TextField label="名字" v-model.trim="tempData.name" />
+          <TextField label="年齡" type="number" v-model.number="tempData.age" />
         </div>
         <div class="flex justify-end w-full gap-8">
           <Btn
@@ -42,19 +42,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in users" :key="index" class="border-b border-gray-500">
+              <tr v-for="(item, index) in userData2" :key="index" class="border-b border-gray-500">
                 <td class="p-2">{{ item.id }}</td>
                 <td class="p-2">{{ item.name }}</td>
                 <td class="p-2">{{ item.age }}</td>
                 <td class="p-2">
                   <div class="flex flex-wrap gap-2 justify-end">
-                    <Btn text="修改" color="success" size="md" @click="editUser(index)" />
+                    <Btn text="修改" color="success" size="md" @click="editUserItem(index)" />
                     <Btn
                       text="刪除"
                       color="error"
                       size="md"
                       :disabled="dialogMode === 'edit'"
-                      @click="deleteUser(index)"
+                      @click="deleteUserItem(item)"
                     />
                   </div>
                 </td>
@@ -65,7 +65,6 @@
       </div>
     </div>
   </div>
-  {{ userData }}
 
   <Dialog />
 </template>
@@ -76,10 +75,19 @@ import TextField from '~/components/ETextField.vue'
 import Dialog from '~/components/Dialog.vue'
 import type { User } from '~/types/type'
 import { useDialogStore } from '~/store/dialog'
+import { useUserStore } from '~/store/user'
 
 const dialogStore = useDialogStore()
 const { openDialog, closeDialog, setDialogMode, setDialogSend } = dialogStore
 const { dialogMode, dialogSend } = storeToRefs(dialogStore)
+
+const userStore = useUserStore()
+const { getUsers, createUser, editUser, deleteUser } = userStore
+const { userData: userData2 } = storeToRefs(userStore)
+
+await useAsyncData('users', async () => {
+  await getUsers()
+})
 
 watch(dialogSend, (n) => {
   if (n) updateUserData()
@@ -100,88 +108,80 @@ const updateUserData = () => {
   }
 }
 
-const randomId = () => {
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-  const letter = letters[Math.floor(Math.random() * letters.length)]
-  const twoDigits = String(Math.floor(Math.random() * 100)).padStart(2, '0') // 00~99
-  return letter + twoDigits
-}
-
-const userData = ref<User>({
-  id: randomId(),
+const tempData = ref<User>({
+  id: null,
   name: '',
   age: null,
 })
-const users = ref<User[]>([
-  { id: 'h67', name: '王小明', age: 25 },
-  { id: 'v44', name: '李大華', age: 30 },
-  { id: 'S39', name: '張美麗', age: 28 },
-  { id: 'g33', name: '蕭樹華', age: 10 },
-  { id: 'l96', name: '洪惠恩', age: 66 },
-  { id: 'b67', name: '方瑞慈', age: 34 },
-  { id: 'f43', name: '陳水興', age: 51 },
-  { id: 'g31', name: '雷方芳', age: 61 },
-  { id: 'j89', name: '張慈容', age: 16 },
-  { id: 'f97', name: '許孝恩', age: 22 },
-])
 
+// 確認傳送資料是否正確
 const checkUserData = () => {
-  const name = userData.value.name?.trim()
-  const age = userData.value.age
+  const name = tempData.value.name
+  const age = tempData.value.age
 
-  if (name && age !== null && age >= 0) {
+  if (name && age !== null && Number.isInteger(age) && age >= 0) {
     openDialog()
   } else {
     alert('請輸入完整的名字和年齡。')
   }
 }
 
-const addUserData = () => {
-  users.value.push({
-    id: randomId(),
-    name: userData.value.name,
-    age: userData.value.age as number,
-  })
+// 新增使用者
+const addUserData = async () => {
+  console.log('addUserData:', tempData.value)
+
+  const data = { ...tempData.value }
+  delete data.id
+
+  await createUser(data)
   closeDialog()
   setDialogSend(false)
   resetUserData()
+  getUsers()
 }
 
-const editUser = (index: number) => {
+// 編輯使用者將資料顯示到畫面上
+const editUserItem = (index: number) => {
   dialogMode.value = 'edit'
-  userData.value = { ...users.value[index] }
+  tempData.value = { ...userData2.value[index] }
 }
 
-const editUserData = () => {
-  const index = users.value.findIndex((user) => user.id === userData.value.id)
-  users.value[index].name = userData.value.name
-  users.value[index].age = userData.value.age
+// 修改使用者
+const editUserData = async () => {
+  const data = { ...tempData.value }
+  console.log('data to edit:', data)
+  await editUser(data)
+
   setDialogMode('add')
   closeDialog()
   setDialogSend(false)
   resetUserData()
+  getUsers()
 }
 
-const deleteUser = (index: number) => {
-  userData.value.id = users.value[index].id
+// 刪除使用者前將所需資料就定位
+const deleteUserItem = (user: User) => {
+  tempData.value = { ...user }
   dialogMode.value = 'delete'
   openDialog()
 }
 
-const deleteUserData = () => {
-  const index = users.value.findIndex((user) => user.id === userData.value.id)
-  console.log('delete index', index)
-  users.value.splice(index, 1)
-  console.log('delete index', users)
+// 刪除使用者
+const deleteUserData = async () => {
+  const data = { ...tempData.value }
+  await deleteUser(data)
+  console.log('data to delete:', data)
   setDialogMode('add')
   closeDialog()
   setDialogSend(false)
   resetUserData()
+  getUsers()
 }
 
+// 重置暫存資料
 const resetUserData = () => {
-  userData.value = {
-    id: randomId(),
+  tempData.value = {
+    id: null,
     name: '',
     age: null,
   }

@@ -1,5 +1,5 @@
 type User = {
-  id: string
+  id?: number | null
   name: string
   age: number | null
 }
