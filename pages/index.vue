@@ -1,24 +1,26 @@
 <template>
-  <div class="text-white flex items-center justify-center">
+  <div class="relative text-white flex items-center justify-center">
+    <LangSelect @changeLang="resetUserData" />
+
     <div
       class="w-full xs:w-[480px] sm:w-[576px] p-4 sm:p-8 mx-auto transition-all duration-500 ease-in-out gap-4"
     >
       <div class="border-1 border-solid border-gray-500 rounded-3xl p-4 sm:px-18 sm:py-10 mb-8">
-        <h2 class="text-center mt-0 mb-2">操作</h2>
+        <h2 class="text-center mt-0 mb-2">{{ $t('operation') }}</h2>
         <div class="mb-10">
-          <TextField label="名字" v-model.trim="tempData.name" />
-          <TextField label="年齡" type="number" v-model.number="tempData.age" />
+          <TextField :label="$t('name')" v-model.trim="tempData.name" />
+          <TextField :label="$t('age')" type="number" v-model.number="tempData.age" />
         </div>
         <div class="flex justify-end w-full gap-8">
           <Btn
-            text="修改"
+            :text="$t('update')"
             color="success"
             size="lg"
             :disabled="dialogMode === 'add'"
             @click="checkUserData"
           />
           <Btn
-            text="新增"
+            :text="$t('create')"
             color="warn"
             size="lg"
             :disabled="dialogMode === 'edit'"
@@ -36,9 +38,9 @@
             <thead class="sticky top-0 bg-obsidian z-10">
               <tr>
                 <th class="p-2">#</th>
-                <th class="p-2">姓名</th>
-                <th class="p-2">年齡</th>
-                <th class="w-[8rem] p-2">操作</th>
+                <th class="p-2">{{ $t('name') }}</th>
+                <th class="p-2">{{ $t('age') }}</th>
+                <th class="w-[8rem] p-2">{{ $t('operation') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -47,10 +49,15 @@
                 <td class="p-2">{{ item.name }}</td>
                 <td class="p-2">{{ item.age }}</td>
                 <td class="p-2">
-                  <div class="flex flex-wrap gap-2 justify-end">
-                    <Btn text="修改" color="success" size="md" @click="editUserItem(index)" />
+                  <div class="flex flex-nowrap gap-2 justify-end">
                     <Btn
-                      text="刪除"
+                      :text="$t('update')"
+                      color="success"
+                      size="md"
+                      @click="editUserItem(index)"
+                    />
+                    <Btn
+                      :text="$t('delete')"
                       color="error"
                       size="md"
                       :disabled="dialogMode === 'edit'"
@@ -73,9 +80,12 @@
 import Btn from '~/components/EBtn.vue'
 import TextField from '~/components/ETextField.vue'
 import Dialog from '~/components/Dialog.vue'
+import LangSelect from '~/components/LangSelect.vue'
 import type { User } from '~/types/type'
 import { useDialogStore } from '~/store/dialog'
 import { useUserStore } from '~/store/user'
+
+const { t } = useI18n()
 
 const dialogStore = useDialogStore()
 const { openDialog, closeDialog, setDialogMode, setDialogSend } = dialogStore
@@ -114,6 +124,14 @@ const tempData = ref<User>({
   age: null,
 })
 
+// 當資料為空切回初始狀態
+const tempDataEmpty = computed(() => !tempData.value.name && !tempData.value.age)
+watch(tempDataEmpty, (n) => {
+  if (n && dialogMode.value !== 'add') {
+    setDialogMode('add')
+  }
+})
+
 // 確認傳送資料是否正確
 const checkUserData = () => {
   const name = tempData.value.name
@@ -122,7 +140,7 @@ const checkUserData = () => {
   if (name && age !== null && Number.isInteger(age) && age >= 0) {
     openDialog()
   } else {
-    alert('請輸入完整的名字和年齡。')
+    alert(t('input_name_age'))
   }
 }
 

@@ -1,4 +1,21 @@
 {
   "welcome": "歡迎",
-  "test": "測試"
+  "test": "測試",
+  "operation": "操作",
+  "name": "名字",
+  "age": "年齡",
+  "create": "新增",
+  "update": "修改",
+  "delete": "刪除",
+  "input_name_age": "請輸入完整的名字和年齡。",
+  "cancel": "取消",
+  "confirm": "確認",
+  "add_user": "新增使用者",
+  "edit_user": "編輯使用者",
+  "delete_user": "刪除使用者",
+  "prompt": "提示",
+  "confirm_add": "確認要新增此筆資料嗎？",
+  "confirm_edit": "確認要修改此筆資料嗎？",
+  "confirm_delete": "確認要刪除此筆資料嗎？",
+  "confirm_operation": "確認要進行此操作嗎？"
 }

@@ -10,8 +10,8 @@
     </section>
 
     <footer class="flex justify-end gap-2">
-      <Btn text="確認" color="success" size="lg" @click="updateData" />
-      <Btn text="取消" color="secondary" size="lg" @click="closeDialog" />
+      <Btn :text="$t('confirm')" color="success" size="lg" @click="updateData" />
+      <Btn :text="$t('cancel')" color="secondary" size="lg" @click="closeDialog" />
     </footer>
   </dialog>
 </template>
@@ -19,6 +19,8 @@
 <script setup lang="ts">
 import { useDialogStore } from '~/store/dialog'
 import Btn from '~/components/EBtn.vue'
+
+const { t } = useI18n()
 
 const dialogStore = useDialogStore()
 const { setDialogSend, closeDialog } = dialogStore
@@ -40,26 +42,26 @@ watch(dialogSwitch, (n) => {
 const dialogTitle = computed(() => {
   switch (dialogMode.value) {
     case 'add':
-      return '新增使用者資料'
+      return t('add_user')
     case 'edit':
-      return '修改使用者資料'
+      return t('edit_user')
     case 'delete':
-      return '刪除使用者資料'
+      return t('delete_user')
     default:
-      return '對話框'
+      return t('prompt')
   }
 })
 
 const dialogMessage = computed(() => {
   switch (dialogMode.value) {
     case 'add':
-      return '確認要新增此筆資料?'
+      return t('confirm_add')
     case 'edit':
-      return '確認要修改此筆資料?'
+      return t('confirm_edit')
     case 'delete':
-      return '確認要刪除此筆資料?'
+      return t('confirm_delete')
     default:
-      return '確認要進行此操作?'
+      return t('confirm_operation')
   }
 })
 
