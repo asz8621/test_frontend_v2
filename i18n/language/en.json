@@ -6,6 +6,7 @@
   "age": "Age",
   "create": "Create",
   "update": "Update",
+  "clear": "Clear",
   "delete": "Delete",
   "input_name_age": "Please enter a complete name and age.",
   "cancel": "Cancel",
@@ -17,5 +18,6 @@
   "confirm_add": "Are you sure you want to add this data?",
   "confirm_edit": "Are you sure you want to edit this data?",
   "confirm_delete": "Are you sure you want to delete this data?",
-  "confirm_operation": "Are you sure you want to perform this operation?"
+  "confirm_operation": "Are you sure you want to perform this operation?",
+  "no_data": "No data available."
 }

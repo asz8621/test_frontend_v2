@@ -9,9 +9,21 @@
         <h2 class="text-center mt-0 mb-2">{{ $t('operation') }}</h2>
         <div class="mb-10">
           <TextField :label="$t('name')" v-model.trim="tempData.name" />
-          <TextField :label="$t('age')" type="number" v-model.number="tempData.age" />
+          <TextField
+            :label="$t('age')"
+            type="number"
+            v-model.number="tempData.age"
+            @keydown="checkInput($event)"
+          />
         </div>
-        <div class="flex justify-end w-full gap-8">
+        <div class="flex justify-end w-full gap-4 sm:gap-8">
+          <Btn
+            :text="$t('clear')"
+            color="secondary"
+            size="lg"
+            @click="resetUserData"
+            class="mr-auto"
+          />
           <Btn
             :text="$t('update')"
             color="success"
@@ -44,27 +56,36 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in userData2" :key="index" class="border-b border-gray-500">
-                <td class="p-2">{{ item.id }}</td>
-                <td class="p-2">{{ item.name }}</td>
-                <td class="p-2">{{ item.age }}</td>
-                <td class="p-2">
-                  <div class="flex flex-nowrap gap-2 justify-end">
-                    <Btn
-                      :text="$t('update')"
-                      color="success"
-                      size="md"
-                      @click="editUserItem(index)"
-                    />
-                    <Btn
-                      :text="$t('delete')"
-                      color="error"
-                      size="md"
-                      :disabled="dialogMode === 'edit'"
-                      @click="deleteUserItem(item)"
-                    />
-                  </div>
-                </td>
+              <template v-if="userData.length > 0">
+                <tr
+                  v-for="(item, index) in userData"
+                  :key="index"
+                  class="border-b border-b-[1px] border-b-solid border-gray-500"
+                >
+                  <td class="p-2">{{ item.id }}</td>
+                  <td class="p-2">{{ item.name }}</td>
+                  <td class="p-2">{{ item.age }}</td>
+                  <td class="p-2">
+                    <div class="flex flex-nowrap gap-2 justify-end">
+                      <Btn
+                        :text="$t('update')"
+                        color="success"
+                        size="md"
+                        @click="editUserItem(index)"
+                      />
+                      <Btn
+                        :text="$t('delete')"
+                        color="error"
+                        size="md"
+                        :disabled="dialogMode === 'edit'"
+                        @click="deleteUserItem(item)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              </template>
+              <tr v-else>
+                <td class="p-4" colspan="4">{{ $t('no_data') }}</td>
               </tr>
             </tbody>
           </table>
@@ -93,7 +114,7 @@ const { dialogMode, dialogSend } = storeToRefs(dialogStore)
 
 const userStore = useUserStore()
 const { getUsers, createUser, editUser, deleteUser } = userStore
-const { userData: userData2 } = storeToRefs(userStore)
+const { userData } = storeToRefs(userStore)
 
 await useAsyncData('users', async () => {
   await getUsers()
@@ -124,6 +145,14 @@ const tempData = ref<User>({
   age: null,
 })
 
+// 限制輸入框不可輸入非正整數
+const checkInput = (event: KeyboardEvent) => {
+  const invalidChars = ['e', 'E', '+', '-', '.']
+  if (invalidChars.includes(event.key)) {
+    event.preventDefault()
+  }
+}
+
 // 當資料為空切回初始狀態
 const tempDataEmpty = computed(() => !tempData.value.name && !tempData.value.age)
 watch(tempDataEmpty, (n) => {
@@ -146,7 +175,7 @@ const checkUserData = () => {
 
 // 新增使用者
 const addUserData = async () => {
-  console.log('addUserData:', tempData.value)
+  // console.log('addUserData:', tempData.value)
 
   const data = { ...tempData.value }
   delete data.id
@@ -161,13 +190,13 @@ const addUserData = async () => {
 // 編輯使用者將資料顯示到畫面上
 const editUserItem = (index: number) => {
   dialogMode.value = 'edit'
-  tempData.value = { ...userData2.value[index] }
+  tempData.value = { ...userData.value[index] }
 }
 
 // 修改使用者
 const editUserData = async () => {
   const data = { ...tempData.value }
-  console.log('data to edit:', data)
+  // console.log('data to edit:', data)
   await editUser(data)
 
   setDialogMode('add')
@@ -188,7 +217,7 @@ const deleteUserItem = (user: User) => {
 const deleteUserData = async () => {
   const data = { ...tempData.value }
   await deleteUser(data)
-  console.log('data to delete:', data)
+  // console.log('data to delete:', data)
   setDialogMode('add')
   closeDialog()
   setDialogSend(false)
